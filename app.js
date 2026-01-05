@@ -105,14 +105,14 @@ function exibirModalPremium(tipo) {
                             <p class="small fw-bold text-uppercase text-muted mb-2 letter-spacing-1">12 MESES DE LICENÇA R$600,00 NO PIX</p>
                             
                             <div class="bg-white p-2 d-inline-block rounded shadow-sm border mb-2">
-                                <img src="img/qrcode_pix.png" class="img-fluid" style="width: 140px; height: 140px; object-fit: contain;" alt="QR Code PIX" onerror="this.src='https://placehold.co/140x140?text=QR+Code+Aqui'">
+                                <img src="img/qrcode-pix.png" class="img-fluid" style="width: 140px; height: 140px; object-fit: contain;" alt="QR Code PIX" onerror="this.src='https://placehold.co/140x140?text=QR+Code+Aqui'">
                             </div>
                         
                         </div>
                     </div>
 
                     <div class="d-grid gap-2">
-                        <a href="https://wa.me/5548920011614?text=Oi%2C%20gostaria%20de%20adquirir%20a%20vers%C3%A3o%20Pro%20do%20%C3%82ncora%20Sistema%20de%20Consultoria!"><button class="btn btn-success fw-bold btn-lg shadow-sm">
+                        <a href="https://wa.me/5548920011614?text=Oi%2C%20gostaria%20de%20adquirir%20a%20Vers%C3%A3o%20Pro%20do%20%C3%82ncora%20Sistema%20de%20Consultoria!"><button class="btn btn-success fw-bold btn-lg shadow-sm">
                             <i class="bi bi-whatsapp"></i> Enviar Comprovante
                         </button></a>
                     </div>
