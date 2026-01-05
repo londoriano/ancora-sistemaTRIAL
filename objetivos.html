@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Objetivos do Cliente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+
+    <div id="alertaNaoSalvo" class="alert alert-warning text-center m-0 hidden">
+        ⚠️ <strong>ALTERAÇÕES PENDENTES!</strong> Salve antes de sair.
+    </div>
+
+    <nav class="navbar navbar-custom px-4 sticky-top">
+        <div class="container-fluid">
+            <button class="navbar-toggler bg-light me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand text-white" href="#" id="headerNomeCliente">Objetivos</a>
+            <div class="d-flex gap-2 ms-auto">
+                <button class="btn btn-success btn-sm fw-bold" onclick="salvarAlteracoes()"><i class="bi bi-save"></i> SALVAR</button>
+                <button class="btn btn-outline-light btn-sm" onclick="voltarIndex()"><i class="bi bi-arrow-return-left"></i> Voltar</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="menuLateral">
+        <div class="offcanvas-header bg-dark text-white">
+            <h5 class="offcanvas-title"><i class="bi bi-menu-button-wide"></i> Navegação</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column p-0" id="conteudoMenuLateral"></div>
+    </div>
+
+    <div class="container mt-4 mb-5 pb-5">
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card shadow-sm border-0 bg-primary text-white">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="m-0"><i class="bi bi-bullseye"></i> Planejamento de Objetivos</h4>
+                            <small>Defina metas claras e calcule o tempo para realização.</small>
+                        </div>
+                        <button class="btn btn-light fw-bold" data-bs-toggle="modal" data-bs-target="#modalObjetivo">
+                            <i class="bi bi-plus-circle-fill"></i> Novo Objetivo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="listaObjetivosCards" class="row g-4">
+            </div>
+    </div>
+
+    <div class="modal fade" id="modalObjetivo" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitulo">Configurar Objetivo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editIndex" value="-1">
+                    <div class="mb-3">
+                        <label class="form-label">Qual o Objetivo? *</label>
+                        <input type="text" id="objNome" class="form-control" placeholder="Ex: Viagem para Europa">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Por que quer alcançar isso?</label>
+                        <textarea id="objMotivo" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Valor Total (R$) *</label>
+                            <input type="number" id="objValorTotal" class="form-control">
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Prazo Desejado</label>
+                            <input type="text" id="objPrazo" class="form-control" placeholder="Ex: 24 meses">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Aporte Mensal (R$)</label>
+                            <input type="number" id="objAporte" class="form-control">
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Rentabilidade (% a.m.)</label>
+                            <input type="number" id="objRentabilidade" class="form-control" step="0.01" value="0.8">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary w-100" onclick="salvarObjetivoNaMemoria()">Salvar Objetivo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const clientId = params.get('id');
+        let currentClient = null;
+        let listaObjetivos = [];
+        let isDirty = false;
+        const modalObj = new bootstrap.Modal(document.getElementById('modalObjetivo'));
+
+        function init() {
+            carregarDados();
+            construirMenuLateral(clientId);
+        }
+
+        function carregarDados() {
+            const db = getDB();
+    currentClient = db.find(c => c.id === clientId);
+
+    if (!currentClient) {
+        exibirMensagem("Cliente não identificado.", "erro", () => window.location.href = 'clientes.html');
+        return;
+    }
+
+            document.getElementById('headerNomeCliente').innerText = `Objetivos: ${currentClient.nome}`;
+            listaObjetivos = currentClient.objetivosPlanejados || [];
+            renderizarObjetivos();
+            isDirty = false;
+document.getElementById('alertaNaoSalvo').classList.add('hidden');
+        }
+
+        function calcularMeses(total, aporte, taxaMensal) {
+            if (!aporte || aporte <= 0) return "Indefinido (sem aporte)";
+            if (taxaMensal <= 0) return Math.ceil(total / aporte) + " meses";
+            
+            // Fórmula de NPER (Número de períodos) simplificada para juros compostos
+            const i = taxaMensal / 100;
+            const n = Math.log((total * i / aporte) + 1) / Math.log(1 + i);
+            return Math.ceil(n) + " meses";
+        }
+
+        function renderizarObjetivos() {
+            const container = document.getElementById('listaObjetivosCards');
+            container.innerHTML = '';
+
+            if (listaObjetivos.length === 0) {
+                container.innerHTML = '<div class="col-12 text-center text-muted py-5">Nenhum objetivo cadastrado.</div>';
+                return;
+            }
+
+            listaObjetivos.forEach((obj, index) => {
+                const meses = calcularMeses(obj.valorTotal, obj.aporte, obj.rentabilidade);
+                
+                const card = document.createElement('div');
+                card.className = 'col-md-6 col-lg-4';
+                card.innerHTML = `
+                    <div class="card shadow-sm h-100 border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h5 class="card-title fw-bold text-primary">${obj.nome}</h5>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary border-0" onclick="editarObjetivo(${index})"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger border-0" onclick="excluirObjetivo(${index})"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </div>
+                            <p class="small text-muted mb-2"><em>"${obj.motivo || 'Sem descrição'}"</em></p>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Valor Necessário:</span>
+                                <span class="fw-bold">${formatarMoeda(obj.valorTotal)}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Aporte Mensal:</span>
+                                <span class="text-success fw-bold">${formatarMoeda(obj.aporte)}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span>Taxa Est.:</span>
+                                <span class="badge bg-light text-dark">${obj.rentabilidade}% a.m.</span>
+                            </div>
+                            <div class="bg-light p-3 rounded text-center">
+                                <small class="d-block text-secondary">Tempo Estimado</small>
+                                <h4 class="m-0 text-dark fw-bold">${meses}</h4>
+                                <small class="text-muted">Prazo desejado: ${obj.prazo || '-'}</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function salvarObjetivoNaMemoria() {
+            const index = parseInt(document.getElementById('editIndex').value);
+            const novoObj = {
+                nome: document.getElementById('objNome').value,
+                motivo: document.getElementById('objMotivo').value,
+                valorTotal: parseFloat(document.getElementById('objValorTotal').value) || 0,
+                prazo: document.getElementById('objPrazo').value,
+                aporte: parseFloat(document.getElementById('objAporte').value) || 0,
+                rentabilidade: parseFloat(document.getElementById('objRentabilidade').value) || 0
+            };
+
+            if (!novoObj.nome || !novoObj.valorTotal) {
+        exibirMensagem("Preencha Nome e Valor Total!", "aviso");
+        return;
+    }
+            if (index === -1) {
+                listaObjetivos.push(novoObj);
+            } else {
+                listaObjetivos[index] = novoObj;
+            }
+
+            marcarComoSujo();
+            renderizarObjetivos();
+            modalObj.hide();
+            limparForm();
+        }
+
+        function editarObjetivo(index) {
+            const obj = listaObjetivos[index];
+            document.getElementById('editIndex').value = index;
+            document.getElementById('objNome').value = obj.nome;
+            document.getElementById('objMotivo').value = obj.motivo;
+            document.getElementById('objValorTotal').value = obj.valorTotal;
+            document.getElementById('objPrazo').value = obj.prazo;
+            document.getElementById('objAporte').value = obj.aporte;
+            document.getElementById('objRentabilidade').value = obj.rentabilidade;
+            
+            document.getElementById('modalTitulo').innerText = "Editar Objetivo";
+            modalObj.show();
+        }
+
+        function excluirObjetivo(index) {
+    exibirConfirmacao("Deseja excluir este objetivo e seu plano de aportes?", () => {
+        listaObjetivos.splice(index, 1);
+        marcarComoSujo();
+        renderizarObjetivos();
+    });
+}
+
+        function limparForm() {
+            document.getElementById('editIndex').value = "-1";
+            document.getElementById('objNome').value = "";
+            document.getElementById('objMotivo').value = "";
+            document.getElementById('objValorTotal').value = "";
+            document.getElementById('objPrazo').value = "";
+            document.getElementById('objAporte').value = "";
+            document.getElementById('objRentabilidade').value = "0.8";
+            document.getElementById('modalTitulo').innerText = "Configurar Objetivo";
+        }
+
+        function marcarComoSujo() {
+            isDirty = true;
+            document.getElementById('alertaNaoSalvo').classList.remove('hidden');
+        }
+
+       // Adicione o parâmetro (silencioso = false)
+function salvarAlteracoes(silencioso = false) {
+    const db = getDB();
+    const idx = db.findIndex(c => c.id === clientId);
+    
+    if (idx !== -1) {
+        // A CORREÇÃO ESTÁ AQUI:
+        // Vincula a variável da memória (listaObjetivos) ao campo do cliente no banco
+        db[idx].objetivosPlanejados = listaObjetivos;
+        
+        saveDB(db);
+        isDirty = false;
+        document.getElementById('alertaNaoSalvo').classList.add('hidden');
+
+        if (!silencioso) {
+            exibirMensagem("Objetivos salvos com sucesso!", "sucesso");
+        }
+    }
+}
+       function voltarIndex() {
+    navegarPara('clientes.html');
+}
+
+        init();
+    </script>
+</body>
+</html>
