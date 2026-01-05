@@ -52,7 +52,7 @@
                         <span class="badge bg-secondary" id="readData">-</span>
                     </div>
                     <button class="btn btn-outline-primary btn-sm" onclick="toggleEdicao()">
-                        <i class="bi bi-pencil-square"></i> Editar Dados (Diagnóstico)
+                        <i class="bi bi-pencil-square"></i> Editar Dados
                     </button>
                 </div>
 
@@ -122,6 +122,7 @@
                 <div class="card-body p-4">
                     <form id="formDados" onchange="marcarComoSujo()">
                         
+                        <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-person-badge"></i> Dados Cadastrais</h6>
                         <div class="row g-3 mb-4">
                             <div class="col-12">
                                 <label class="form-label fw-bold">Observações Gerais</label>
@@ -154,11 +155,103 @@
                             </div>
                         </div>
 
-                        <hr>
+                        <hr class="text-muted">
 
-                        <div class="row mt-4">
+                        <h6 class="fw-bold text-primary mb-3"><i class="bi bi-clipboard2-pulse"></i> Diagnóstico Inicial & Proteção</h6>
+                        <div class="row g-3 mb-4 bg-light p-3 rounded border">
+                            
+                            <div class="col-12">
+                                <label class="form-label fw-bold small text-uppercase">Por que buscou uma consultoria financeira?</label>
+                                <input type="text" name="motivoConsultoria" class="form-control" placeholder="Objetivo principal ou dor atual...">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold">Quanto poupa por mês? (R$)</label>
+                                <input type="text" name="poupancaMensal" class="form-control" placeholder="R$ 0,00">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold">Faz Fluxo de Caixa?</label>
+                                <select name="fazFluxo" class="form-select">
+                                    <option value="">-</option>
+                                    <option value="Sim">Sim, registra tudo</option>
+                                    <option value="Mais ou menos">Mais ou menos</option>
+                                    <option value="Nao">Não registra nada</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold">Se paga primeiro?</label>
+                                <select name="pagaPrimeiro" class="form-select">
+                                    <option value="">-</option>
+                                    <option value="Sim">Sim, é prioridade</option>
+                                    <option value="As vezes">Às vezes</option>
+                                    <option value="Nao">Não, sobra nada</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Relacionamento com dinheiro?</label>
+                                <select name="relacaoDinheiro" class="form-select">
+                                    <option value="">-</option>
+                                    <option value="Tranquilo">Tranquilo / Controlado</option>
+                                    <option value="Ansioso">Ansioso / Preocupado</option>
+                                    <option value="Consumista">Consumista / Impulsivo</option>
+                                    <option value="Evitativo">Evitativo (Não gosta de olhar)</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Nível de Conhecimento Financeiro</label>
+                                <select name="nivelConhecimento" class="form-select">
+                                    <option value="Iniciante">Iniciante</option>
+                                    <option value="Basico">Básico</option>
+                                    <option value="Intermediario">Intermediário</option>
+                                    <option value="Avancado">Avançado</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12"><hr class="my-2"></div>
+
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold">Tem Plano de Saúde?</label>
+                                <select name="temPlanoSaude" class="form-select">
+                                    <option value="Nao">Não</option>
+                                    <option value="Sim">Sim</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold">Seguro de Bens (Auto/Casa)?</label>
+                                <select name="temSeguroBens" class="form-select">
+                                    <option value="Nao">Não</option>
+                                    <option value="Sim">Sim</option>
+                                    <option value="Parcial">Parcial</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold">Seguro de Vida/Acidentes?</label>
+                                <select name="temSeguroVida" class="form-select">
+                                    <option value="Nao">Não</option>
+                                    <option value="Sim">Sim</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold">Investe p/ Aposentadoria?</label>
+                                <select name="investeAposentadoria" class="form-select">
+                                    <option value="Nao">Não</option>
+                                    <option value="Sim">Sim</option>
+                                    <option value="Previdencia">Previdência Privada</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-list-check"></i> Levantamento Rápido</h6>
+                        <div class="row mt-2">
                             <div class="col-12 mb-4">
-                                <h6 class="fw-bold text-primary">Objetivos</h6>
+                                <h6 class="fw-bold text-primary small">Objetivos</h6>
                                 <div class="input-group mb-2">
                                     <input type="text" id="objTitulo" class="form-control form-control-sm" placeholder="Objetivo">
                                     <input type="number" id="objValor" class="form-control form-control-sm" placeholder="Valor">
@@ -169,7 +262,7 @@
                             </div>
 
                             <div class="col-md-6 mb-4">
-                                <h6 class="fw-bold">Gastos Fixos</h6>
+                                <h6 class="fw-bold small">Gastos Fixos</h6>
                                 <div class="input-group mb-2">
                                     <input type="text" id="gastoFixoNome" class="form-control form-control-sm" placeholder="Ex: Aluguel">
                                     <input type="number" id="gastoFixoValor" class="form-control form-control-sm" placeholder="Valor">
@@ -178,7 +271,7 @@
                                 <table class="table table-sm table-bordered mini-table"><tbody id="lista-gastosFixos"></tbody></table>
                             </div>
                             <div class="col-md-6 mb-4">
-                                <h6 class="fw-bold">Gastos Variáveis</h6>
+                                <h6 class="fw-bold small">Gastos Variáveis</h6>
                                 <div class="input-group mb-2">
                                     <input type="text" id="gastoVarNome" class="form-control form-control-sm" placeholder="Ex: Lazer">
                                     <input type="number" id="gastoVarValor" class="form-control form-control-sm" placeholder="Valor">
@@ -188,7 +281,7 @@
                             </div>
 
                             <div class="col-md-6">
-                                <h6 class="fw-bold">Dívidas</h6>
+                                <h6 class="fw-bold small">Dívidas (Rápido)</h6>
                                 <div class="input-group mb-2">
                                     <input type="text" id="divTitulo" class="form-control form-control-sm" placeholder="Desc">
                                     <input type="number" id="divValor" class="form-control form-control-sm" placeholder="Val">
@@ -198,13 +291,26 @@
                             </div>
 
                             <div class="col-md-6">
-                                <h6 class="fw-bold">Investimentos</h6>
+                                <h6 class="fw-bold small">Investimentos (Rápido)</h6>
                                 <div class="input-group mb-2">
                                     <input type="text" id="invOnde" class="form-control form-control-sm" placeholder="Onde">
                                     <input type="number" id="invValor" class="form-control form-control-sm" placeholder="Total">
                                     <button type="button" class="btn btn-success btn-sm" onclick="addNaLista('investimentos')">+</button>
                                 </div>
                                 <table class="table table-sm table-bordered mini-table"><tbody id="lista-investimentos"></tbody></table>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info d-flex align-items-center mt-4 border-info shadow-sm" role="alert">
+                            <div class="me-3 fs-3 text-info"><i class="bi bi-folder-fill"></i></div>
+                            <div>
+                                <h6 class="alert-heading fw-bold mb-1">Checklist de Documentos</h6>
+                                <p class="mb-0 small">Caso o cliente possua, solicite com antecedência para avaliação:</p>
+                                <ul class="mb-0 small ps-3 mt-1">
+                                    <li>Todas as apólices de seguros (Vida, Carro, Casa)</li>
+                                    <li>Certificado / Extrato da previdência privada</li>
+                                    <li>Última declaração de Imposto de Renda Completa</li>
+                                </ul>
                             </div>
                         </div>
 
@@ -226,12 +332,12 @@
 
         function carregarDados() {
             const db = getDB();
-    currentClient = db.find(c => c.id === clientId);
+            currentClient = db.find(c => c.id === clientId);
 
-    if (!currentClient) {
-        exibirMensagem("Cliente não encontrado!", "erro", () => window.location.href = 'clientes.html');
-        return;
-    }
+            if (!currentClient) {
+                exibirMensagem("Cliente não encontrado!", "erro", () => window.location.href = 'clientes.html');
+                return;
+            }
 
             document.getElementById('headerNomeCliente').innerText = "Perfil: " + currentClient.nome;
 
@@ -258,6 +364,7 @@
 
             // --- POPULAR MODO EDIÇÃO ---
             const form = document.getElementById('formDados');
+            // Este loop preenche automaticamente os novos campos criados
             Array.from(form.elements).forEach(field => {
                 if (field.name && dados[field.name]) {
                     field.value = dados[field.name];
@@ -267,10 +374,9 @@
             renderizarTodasListasEdicao();
             construirMenuLateral(clientId);
 
-            // ADICIONE ESTA LINHA NO FINAL:
-    isDirty = false;
-    document.getElementById('alertaNaoSalvo').classList.add('hidden');
-}
+            isDirty = false;
+            document.getElementById('alertaNaoSalvo').classList.add('hidden');
+        }
 
         // Função Auxiliar para criar HTML das listas de leitura
         function atualizarListasLeitura() {
@@ -292,7 +398,6 @@
 
             let html = '';
             lista.forEach(item => {
-                // Tenta pegar o nome/título na propriedade col1
                 const nome = item.col1 || 'Item';
                 const valor = formatarMoeda(item.valor || 0);
                 html += `<div class="list-read-item"><span>${nome}</span><strong>${valor}</strong></div>`;
@@ -313,39 +418,38 @@
 
         // --- CRUD EDIÇÃO ---
        function addNaLista(tipo) {
-    let item = {};
-    // Validação Objetivos
-    if(tipo === 'objetivos') {
-        item = { col1: document.getElementById('objTitulo').value, valor: document.getElementById('objValor').value, col3: document.getElementById('objPrazo').value };
-        if(!item.col1 || !item.valor) { exibirMensagem('Preencha Objetivo e Valor', 'aviso'); return; }
-        // Limpar campos...
-        document.getElementById('objTitulo').value = ''; document.getElementById('objValor').value = ''; document.getElementById('objPrazo').value = '';
-    } 
-    // Validação Dívidas
-    else if(tipo === 'dividas') {
-        item = { col1: document.getElementById('divTitulo').value, valor: document.getElementById('divValor').value };
-        if(!item.col1 || !item.valor) { exibirMensagem('Preencha Descrição e Valor', 'aviso'); return; }
-        document.getElementById('divTitulo').value = ''; document.getElementById('divValor').value = '';
-    } 
-    // Validação Investimentos
-    else if(tipo === 'investimentos') {
-        item = { col1: document.getElementById('invOnde').value, valor: document.getElementById('invValor').value };
-        if(!item.col1 || !item.valor) { exibirMensagem('Preencha Onde e Valor', 'aviso'); return; }
-        document.getElementById('invOnde').value = ''; document.getElementById('invValor').value = '';
-    } 
-    // Validação Gastos
-    else if(tipo.startsWith('gastos')) {
-        const sufixo = tipo === 'gastosFixos' ? 'Fixo' : 'Var';
-        item = { col1: document.getElementById(`gasto${sufixo}Nome`).value, valor: document.getElementById(`gasto${sufixo}Valor`).value };
-        if(!item.col1 || !item.valor) return; // Gastos rápidos geralmente não precisam de alerta, só não adiciona
-        document.getElementById(`gasto${sufixo}Nome`).value = ''; document.getElementById(`gasto${sufixo}Valor`).value = '';
-    }
+            let item = {};
+            // Validação Objetivos
+            if(tipo === 'objetivos') {
+                item = { col1: document.getElementById('objTitulo').value, valor: document.getElementById('objValor').value, col3: document.getElementById('objPrazo').value };
+                if(!item.col1 || !item.valor) { exibirMensagem('Preencha Objetivo e Valor', 'aviso'); return; }
+                document.getElementById('objTitulo').value = ''; document.getElementById('objValor').value = ''; document.getElementById('objPrazo').value = '';
+            } 
+            // Validação Dívidas
+            else if(tipo === 'dividas') {
+                item = { col1: document.getElementById('divTitulo').value, valor: document.getElementById('divValor').value };
+                if(!item.col1 || !item.valor) { exibirMensagem('Preencha Descrição e Valor', 'aviso'); return; }
+                document.getElementById('divTitulo').value = ''; document.getElementById('divValor').value = '';
+            } 
+            // Validação Investimentos
+            else if(tipo === 'investimentos') {
+                item = { col1: document.getElementById('invOnde').value, valor: document.getElementById('invValor').value };
+                if(!item.col1 || !item.valor) { exibirMensagem('Preencha Onde e Valor', 'aviso'); return; }
+                document.getElementById('invOnde').value = ''; document.getElementById('invValor').value = '';
+            } 
+            // Validação Gastos
+            else if(tipo.startsWith('gastos')) {
+                const sufixo = tipo === 'gastosFixos' ? 'Fixo' : 'Var';
+                item = { col1: document.getElementById(`gasto${sufixo}Nome`).value, valor: document.getElementById(`gasto${sufixo}Valor`).value };
+                if(!item.col1 || !item.valor) return; 
+                document.getElementById(`gasto${sufixo}Nome`).value = ''; document.getElementById(`gasto${sufixo}Valor`).value = '';
+            }
 
-    if(!listasDados[tipo]) listasDados[tipo] = [];
-    listasDados[tipo].push(item);
-    marcarComoSujo();
-    renderizarListaEdicao(tipo);
-}
+            if(!listasDados[tipo]) listasDados[tipo] = [];
+            listasDados[tipo].push(item);
+            marcarComoSujo();
+            renderizarListaEdicao(tipo);
+        }
 
         function removerItem(tipo, index) {
             listasDados[tipo].splice(index, 1);
@@ -378,34 +482,33 @@
         }
 
         function salvarAlteracoes(silencioso = false) {
-    const form = document.getElementById('formDados');
-    const db = getDB();
-    const index = db.findIndex(c => c.id === clientId);
-    if (index === -1) return;
+            const form = document.getElementById('formDados');
+            const db = getDB();
+            const index = db.findIndex(c => c.id === clientId);
+            if (index === -1) return;
 
-    const novosDados = {};
-    Array.from(form.elements).forEach(field => {
-        if(field.name) novosDados[field.name] = field.value;
-    });
-    novosDados.listas = listasDados;
+            const novosDados = {};
+            Array.from(form.elements).forEach(field => {
+                if(field.name) novosDados[field.name] = field.value;
+            });
+            novosDados.listas = listasDados;
 
-    db[index].dadosPessoais = novosDados;
-    saveDB(db);
+            db[index].dadosPessoais = novosDados;
+            saveDB(db);
 
-    isDirty = false;
-    document.getElementById('alertaNaoSalvo').classList.add('hidden');
-    
-    if (!silencioso) {
-        // AQUI ESTÁ A MÁGICA: Passamos o reload como callback
-        exibirMensagem("Perfil do cliente atualizado com sucesso!", "sucesso", () => {
-            location.reload(); 
-        });
-    }
-}
+            isDirty = false;
+            document.getElementById('alertaNaoSalvo').classList.add('hidden');
+            
+            if (!silencioso) {
+                exibirMensagem("Perfil do cliente atualizado com sucesso!", "sucesso", () => {
+                    location.reload(); 
+                });
+            }
+        }
 
         function voltarIndex() {
-    navegarPara('clientes.html');
-}
+            navegarPara('clientes.html');
+        }
 
         carregarDados();
     </script>
