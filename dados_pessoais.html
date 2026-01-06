@@ -159,17 +159,14 @@
 
                         <h6 class="fw-bold text-primary mb-3"><i class="bi bi-clipboard2-pulse"></i> Diagnóstico Inicial & Proteção</h6>
                         <div class="row g-3 mb-4 bg-light p-3 rounded border">
-                            
                             <div class="col-12">
                                 <label class="form-label fw-bold small text-uppercase">Por que buscou uma consultoria financeira?</label>
                                 <input type="text" name="motivoConsultoria" class="form-control" placeholder="Objetivo principal ou dor atual...">
                             </div>
-
                             <div class="col-md-4">
                                 <label class="form-label small fw-bold">Quanto poupa por mês? (R$)</label>
                                 <input type="text" name="poupancaMensal" class="form-control" placeholder="R$ 0,00">
                             </div>
-
                             <div class="col-md-4">
                                 <label class="form-label small fw-bold">Faz Fluxo de Caixa?</label>
                                 <select name="fazFluxo" class="form-select">
@@ -179,7 +176,6 @@
                                     <option value="Nao">Não registra nada</option>
                                 </select>
                             </div>
-
                             <div class="col-md-4">
                                 <label class="form-label small fw-bold">Se paga primeiro?</label>
                                 <select name="pagaPrimeiro" class="form-select">
@@ -189,7 +185,6 @@
                                     <option value="Nao">Não, sobra nada</option>
                                 </select>
                             </div>
-
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold">Relacionamento com dinheiro?</label>
                                 <select name="relacaoDinheiro" class="form-select">
@@ -200,7 +195,6 @@
                                     <option value="Evitativo">Evitativo (Não gosta de olhar)</option>
                                 </select>
                             </div>
-
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold">Nível de Conhecimento Financeiro</label>
                                 <select name="nivelConhecimento" class="form-select">
@@ -210,9 +204,7 @@
                                     <option value="Avancado">Avançado</option>
                                 </select>
                             </div>
-
                             <div class="col-12"><hr class="my-2"></div>
-
                             <div class="col-md-3">
                                 <label class="form-label small fw-bold">Tem Plano de Saúde?</label>
                                 <select name="temPlanoSaude" class="form-select">
@@ -220,7 +212,6 @@
                                     <option value="Sim">Sim</option>
                                 </select>
                             </div>
-
                             <div class="col-md-3">
                                 <label class="form-label small fw-bold">Seguro de Bens (Auto/Casa)?</label>
                                 <select name="temSeguroBens" class="form-select">
@@ -229,7 +220,6 @@
                                     <option value="Parcial">Parcial</option>
                                 </select>
                             </div>
-
                             <div class="col-md-3">
                                 <label class="form-label small fw-bold">Seguro de Vida/Acidentes?</label>
                                 <select name="temSeguroVida" class="form-select">
@@ -237,7 +227,6 @@
                                     <option value="Sim">Sim</option>
                                 </select>
                             </div>
-
                             <div class="col-md-3">
                                 <label class="form-label small fw-bold">Investe p/ Aposentadoria?</label>
                                 <select name="investeAposentadoria" class="form-select">
@@ -341,7 +330,6 @@
 
             document.getElementById('headerNomeCliente').innerText = "Perfil: " + currentClient.nome;
 
-            // --- POPULAR CRACHÁ (LEITURA) ---
             document.getElementById('readNome').innerText = currentClient.nome;
             document.getElementById('readData').innerText = "Desde: " + (currentClient.dataDiagnostico ? currentClient.dataDiagnostico.split('-').reverse().join('/') : '-');
             document.getElementById('readEmail').innerText = currentClient.email || '-';
@@ -358,13 +346,10 @@
                 document.getElementById('readObs').innerText = dados.observacoesGerais;
             }
 
-            // Popula Listas de Leitura
             if(dados.listas) listasDados = dados.listas;
             atualizarListasLeitura();
 
-            // --- POPULAR MODO EDIÇÃO ---
             const form = document.getElementById('formDados');
-            // Este loop preenche automaticamente os novos campos criados
             Array.from(form.elements).forEach(field => {
                 if (field.name && dados[field.name]) {
                     field.value = dados[field.name];
@@ -378,7 +363,6 @@
             document.getElementById('alertaNaoSalvo').classList.add('hidden');
         }
 
-        // Função Auxiliar para criar HTML das listas de leitura
         function atualizarListasLeitura() {
             gerarHtmlListaLeitura('objetivos', 'viewListObjetivos');
             gerarHtmlListaLeitura('gastosFixos', 'viewListFixos');
@@ -395,7 +379,6 @@
                 container.innerHTML = '<span class="text-muted small fst-italic">Vazio</span>';
                 return;
             }
-
             let html = '';
             lista.forEach(item => {
                 const nome = item.col1 || 'Item';
@@ -405,7 +388,6 @@
             container.innerHTML = html;
         }
 
-        // Toggle Edição
         function toggleEdicao() {
             const section = document.getElementById('sectionEditor');
             if(section.classList.contains('d-none')) {
@@ -416,28 +398,33 @@
             }
         }
 
-        // --- CRUD EDIÇÃO ---
-       function addNaLista(tipo) {
+        function addNaLista(tipo) {
+            // --- VERIFICAÇÃO DE LIMITES ---
+            if(!listasDados[tipo]) listasDados[tipo] = [];
+            
+            // Só verificamos os limites para Dívidas, Investimentos e Objetivos
+            if(['dividas', 'investimentos', 'objetivos'].includes(tipo)) {
+                // Passamos a contagem atual para o verificador
+                if (!verificarLimites(tipo, listasDados[tipo].length)) return; 
+            }
+            // -----------------------------
+
             let item = {};
-            // Validação Objetivos
             if(tipo === 'objetivos') {
                 item = { col1: document.getElementById('objTitulo').value, valor: document.getElementById('objValor').value, col3: document.getElementById('objPrazo').value };
                 if(!item.col1 || !item.valor) { exibirMensagem('Preencha Objetivo e Valor', 'aviso'); return; }
                 document.getElementById('objTitulo').value = ''; document.getElementById('objValor').value = ''; document.getElementById('objPrazo').value = '';
             } 
-            // Validação Dívidas
             else if(tipo === 'dividas') {
                 item = { col1: document.getElementById('divTitulo').value, valor: document.getElementById('divValor').value };
                 if(!item.col1 || !item.valor) { exibirMensagem('Preencha Descrição e Valor', 'aviso'); return; }
                 document.getElementById('divTitulo').value = ''; document.getElementById('divValor').value = '';
             } 
-            // Validação Investimentos
             else if(tipo === 'investimentos') {
                 item = { col1: document.getElementById('invOnde').value, valor: document.getElementById('invValor').value };
                 if(!item.col1 || !item.valor) { exibirMensagem('Preencha Onde e Valor', 'aviso'); return; }
                 document.getElementById('invOnde').value = ''; document.getElementById('invValor').value = '';
             } 
-            // Validação Gastos
             else if(tipo.startsWith('gastos')) {
                 const sufixo = tipo === 'gastosFixos' ? 'Fixo' : 'Var';
                 item = { col1: document.getElementById(`gasto${sufixo}Nome`).value, valor: document.getElementById(`gasto${sufixo}Valor`).value };
@@ -445,7 +432,6 @@
                 document.getElementById(`gasto${sufixo}Nome`).value = ''; document.getElementById(`gasto${sufixo}Valor`).value = '';
             }
 
-            if(!listasDados[tipo]) listasDados[tipo] = [];
             listasDados[tipo].push(item);
             marcarComoSujo();
             renderizarListaEdicao(tipo);
@@ -506,9 +492,7 @@
             }
         }
 
-        function voltarIndex() {
-            navegarPara('clientes.html');
-        }
+        function voltarIndex() { navegarPara('clientes.html'); }
 
         carregarDados();
     </script>

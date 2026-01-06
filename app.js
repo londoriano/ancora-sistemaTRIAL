@@ -20,8 +20,6 @@ async function verificarLicenca() {
     const diffTime = dataExpiracao - hoje;
     const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    console.log(`Trial: ${diasRestantes} dias restantes.`);
-
     // BLOQUEIO FATAL SE EXPIROU
     if (diasRestantes < 0) {
         sessionStorage.clear();
@@ -43,7 +41,6 @@ async function verificarLicenca() {
         throw new Error("TRIAL EXPIRADO"); 
     }
 
-    // AVISO NO RODAPÉ
     const msgElement = document.getElementById('licencaMsg');
     if (msgElement) {
         if (diasRestantes > 5) {
@@ -78,16 +75,22 @@ function exibirModalPremium(tipo) {
 
     if (tipo === 'backup') {
         titulo = "Proteção de Dados";
-        // ATUALIZADO: Texto inclui importação explicitamente
-        texto = "A realização de backups, <strong>exportação e restauração</strong> de dados são recursos exclusivos da versão PRO.";
+        texto = "A realização de backups, <strong>exportação e restauração</strong> são recursos exclusivos da versão PRO.";
         icone = "bi-shield-lock-fill";
     } else if (tipo === 'limite_clientes') {
-        titulo = "Limite Atingido";
+        titulo = "Limite de Clientes";
         texto = "Você atingiu o limite de <strong>4 clientes</strong> da versão gratuita. <br>Para gerenciar uma carteira ilimitada, faça o upgrade.";
         icone = "bi-people-fill";
+    } else if (tipo === 'limite_recursos') {
+        titulo = "Limite de Recursos";
+        texto = "Na versão Trial, você possui limites para cadastrar Dívidas (3), Objetivos (2) e Investimentos (1) por cliente.";
+        icone = "bi-speedometer2";
+    } else if (tipo === 'modulo_bloqueado') {
+        titulo = "Módulo Avançado";
+        texto = "O acesso aos módulos de <strong>Reserva de Emergência, Proteção Patrimonial e Aposentadoria</strong> é exclusivo para assinantes PRO.";
+        icone = "bi-lock-fill";
     }
 
-    // Placeholder para imagem do QR Code
     const modalHtml = `
     <div class="modal fade" id="modalPremium" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -102,17 +105,16 @@ function exibirModalPremium(tipo) {
                     
                     <div class="card border-warning mb-4" style="border: 2px dashed #ffc107; background-color: #fffbef;">
                         <div class="card-body">
-                            <p class="small fw-bold text-uppercase text-muted mb-2 letter-spacing-1">12 MESES DE LICENÇA R$600,00 NO PIX</p>
-                            
+                            <p class="small fw-bold text-uppercase text-muted mb-2 letter-spacing-1">Acesso Vitalício: R$997,00</p>
                             <div class="bg-white p-2 d-inline-block rounded shadow-sm border mb-2">
                                 <img src="img/qrcode-pix.png" class="img-fluid" style="width: 140px; height: 140px; object-fit: contain;" alt="QR Code PIX" onerror="this.src='https://placehold.co/140x140?text=QR+Code+Aqui'">
                             </div>
-                        
+                            <p class="small text-muted mt-1 mb-0 user-select-all">Chave PIX: <strong>jeferson4320@gmail.com</strong></p>
                         </div>
                     </div>
 
                     <div class="d-grid gap-2">
-                        <a href="https://wa.me/5548920011614?text=Oi%2C%20gostaria%20de%20adquirir%20a%20Vers%C3%A3o%20Pro%20do%20%C3%82ncora%20Sistema%20de%20Consultoria!"><button class="btn btn-success fw-bold btn-lg shadow-sm">
+                       <a href="https://wa.me/5548920011614?text=Ol%C3%A1%2C%20sobre%20a%20vers%C3%A3o%20PRO%20do%20Sistema%20%C3%82ncora..." target="_blank"> <button class="btn btn-success fw-bold btn-lg shadow-sm">
                             <i class="bi bi-whatsapp"></i> Enviar Comprovante
                         </button></a>
                     </div>
@@ -130,27 +132,34 @@ function exibirModalPremium(tipo) {
 }
 
 // --- VERIFICAÇÃO DE LIMITES ---
-function verificarLimites(tipoRecurso) {
+function verificarLimites(tipoRecurso, qtdAtual = 0) {
     const db = getDB();
     
-    // LIMITES DA VERSÃO GRATUITA
+    // NOVOS LIMITES (Escassez)
     const LIMITES = {
         'clientes': 4,      
-        'dividas': 10,       
-        'investimentos': 10
+        'dividas': 3,       // Reduzido para 3
+        'objetivos': 2,     // Reduzido para 2
+        'investimentos': 1  // Reduzido para 1
     };
 
     if (tipoRecurso === 'clientes') {
         if (db.length >= LIMITES.clientes) {
             exibirModalPremium('limite_clientes');
-            return false; // Bloqueia
+            return false;
+        }
+    } else if (['dividas', 'objetivos', 'investimentos'].includes(tipoRecurso)) {
+        // Verifica se a quantidade atual já atingiu o limite
+        if (qtdAtual >= LIMITES[tipoRecurso]) {
+            exibirModalPremium('limite_recursos');
+            return false;
         }
     }
     
-    return true; // Permite
+    return true; 
 }
 
-// --- UTILITÁRIOS GERAIS ---
+// --- UTILITÁRIOS ---
 function exibirMensagem(texto, tipo = 'sucesso', callback = null) {
     const antigo = document.getElementById('modalAvisoGeral');
     if (antigo) antigo.remove();
@@ -225,7 +234,6 @@ function exibirConfirmacao(texto, callbackSim) {
             callbackSim();
         }, 100);
     };
-    
     modalObj.show();
 }
 
@@ -271,7 +279,6 @@ function verificarSaida(acaoDestino) {
             isDirty = false;
             acaoDestino();
         };
-
         modalObj.show();
     } else {
         acaoDestino();
@@ -296,9 +303,17 @@ function formatarMoeda(valor) {
     return parseFloat(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+// --- CONSTRUÇÃO DO MENU LATERAL (COM BLOQUEIO) ---
 function construirMenuLateral(clientId) {
     const container = document.getElementById('conteudoMenuLateral');
     if (!container) return; 
+
+    // Lista de módulos que serão bloqueados visualmente e funcionalmente
+    const ARQUIVOS_BLOQUEADOS = [
+        'reserva_emergencia.html', 
+        'protecao_patrimonial.html', 
+        'aposentadoria.html'
+    ];
 
     const paginas = [
         { nome: 'Dados Pessoais', arquivo: 'dados_pessoais.html', icone: 'bi-person-vcard' },
@@ -321,14 +336,29 @@ function construirMenuLateral(clientId) {
     `;
 
     const paginaAtual = window.location.pathname.split("/").pop();
+    
     paginas.forEach(p => {
+        const isBloqueado = ARQUIVOS_BLOQUEADOS.includes(p.arquivo);
         const activeClass = paginaAtual === p.arquivo ? 'active fw-bold' : '';
         const urlCompleta = `${p.arquivo}?id=${clientId}`;
-        html += `<a href="#" onclick="navegarPara('${urlCompleta}')" class="list-group-item list-group-item-action ${activeClass}"><i class="bi ${p.icone} me-2"></i> ${p.nome}</a>`;
+        
+        // Se bloqueado: Ícone de cadeado e chama o modal ao clicar
+        if (isBloqueado) {
+            html += `
+            <a href="#" onclick="exibirModalPremium('modulo_bloqueado')" class="list-group-item list-group-item-action text-muted" style="opacity: 0.7;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span><i class="bi ${p.icone} me-2"></i> ${p.nome}</span>
+                    <i class="bi bi-lock-fill text-warning small"></i>
+                </div>
+            </a>`;
+        } else {
+            // Se liberado: Navegação normal
+            html += `<a href="#" onclick="navegarPara('${urlCompleta}')" class="list-group-item list-group-item-action ${activeClass}"><i class="bi ${p.icone} me-2"></i> ${p.nome}</a>`;
+        }
     });
 
     html += '</div>';
-    html += `<div class="mt-auto p-3 text-center text-muted small border-top"><small>Âncora Trial v2.1</small></div>`;
+    html += `<div class="mt-auto p-3 text-center text-muted small border-top"><small>Âncora Trial v2.2</small></div>`;
     container.innerHTML = html;
 }
 
