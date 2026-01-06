@@ -401,13 +401,6 @@
         function addNaLista(tipo) {
             // --- VERIFICAÇÃO DE LIMITES ---
             if(!listasDados[tipo]) listasDados[tipo] = [];
-            
-            // Só verificamos os limites para Dívidas, Investimentos e Objetivos
-            if(['dividas', 'investimentos', 'objetivos'].includes(tipo)) {
-                // Passamos a contagem atual para o verificador
-                if (!verificarLimites(tipo, listasDados[tipo].length)) return; 
-            }
-            // -----------------------------
 
             let item = {};
             if(tipo === 'objetivos') {

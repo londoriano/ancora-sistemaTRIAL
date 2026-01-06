@@ -83,7 +83,7 @@ function exibirModalPremium(tipo) {
         icone = "bi-people-fill";
     } else if (tipo === 'limite_recursos') {
         titulo = "Limite de Recursos";
-        texto = "Na versão Trial, você possui limites para cadastrar Dívidas (3), Objetivos (2) e Investimentos (1) por cliente.";
+        texto = "Na versão Trial, você possui limites de cadastros por cliente.";
         icone = "bi-speedometer2";
     } else if (tipo === 'modulo_bloqueado') {
         titulo = "Módulo Avançado";

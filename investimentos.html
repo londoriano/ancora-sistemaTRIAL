@@ -77,8 +77,7 @@
             </button>
         </div>
 
-        <div id="listaInvestimentos" class="row g-3">
-            </div>
+        <div id="listaInvestimentos" class="row g-3"></div>
 
     </div>
 
@@ -129,7 +128,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary w-100" onclick="salvarInvestimentoMemoria()">Salvar Investimento</button>
+                    <button type="button" class="btn btn-primary w-100" onclick="salvarNovoInvestimento()">Salvar Investimento</button>
                 </div>
             </div>
         </div>
@@ -145,32 +144,30 @@
         let chartInstance = null;
         const modalInv = new bootstrap.Modal(document.getElementById('modalInvestimento'));
 
-      function init() {
-    if(!clientId) {
-        exibirMensagem("Erro: Cliente não identificado.", "erro", () => window.location.href = 'clientes.html');
-        return;
-    }
-    carregarDados();
-    construirMenuLateral(clientId);
-}
+        function init() {
+            if(!clientId) {
+                exibirMensagem("Erro: Cliente não identificado.", "erro", () => window.location.href = 'clientes.html');
+                return;
+            }
+            carregarDados();
+            construirMenuLateral(clientId);
+        }
 
         function carregarDados() {
             const db = getDB();
-    const client = db.find(c => c.id === clientId);
-    
-    if (!client) {
-        exibirMensagem("Cliente não encontrado!", "erro", () => window.location.href = 'clientes.html');
-        return;
-    }
+            const client = db.find(c => c.id === clientId);
+            
+            if (!client) {
+                exibirMensagem("Cliente não encontrado!", "erro", () => window.location.href = 'clientes.html');
+                return;
+            }
 
             document.getElementById('headerNomeCliente').innerText = `Investimentos: ${client.nome}`;
-            
-            // Tenta carregar a lista nova, se não existir, inicia vazia
             listaAtivos = client.investimentos || [];
             
             renderizarTela();
             isDirty = false;
-document.getElementById('alertaNaoSalvo').classList.add('hidden');
+            document.getElementById('alertaNaoSalvo').classList.add('hidden');
         }
 
         function renderizarTela() {
@@ -183,7 +180,7 @@ document.getElementById('alertaNaoSalvo').classList.add('hidden');
             container.innerHTML = '';
 
             if (listaAtivos.length === 0) {
-                container.innerHTML = '<div class="col-12 text-center text-muted py-5"><i>Nenhum investimento cadastrado. Comece a construir o futuro agora.</i></div>';
+                container.innerHTML = '<div class="col-12 text-center text-muted py-5"><i>Nenhum investimento cadastrado.</i></div>';
                 return;
             }
 
@@ -213,15 +210,6 @@ document.getElementById('alertaNaoSalvo').classList.add('hidden');
                                 <small class="d-block text-secondary">Valor Atual</small>
                                 <h4 class="m-0 fw-bold text-success">${formatarMoeda(ativo.valor)}</h4>
                             </div>
-
-                            <div class="d-flex justify-content-between small border-bottom pb-2 mb-2">
-                                <span>Aporte Mensal:</span>
-                                <strong>${formatarMoeda(ativo.aporte)}</strong>
-                            </div>
-                            <div class="d-flex justify-content-between small">
-                                <span>Rentabilidade:</span>
-                                <strong>${ativo.rentabilidade || 0}% a.a.</strong>
-                            </div>
                         </div>
                     </div>
                 `;
@@ -241,65 +229,60 @@ document.getElementById('alertaNaoSalvo').classList.add('hidden');
 
             const totalGeral = totalFixa + totalVariavel;
 
-            // Atualiza Textos
             document.getElementById('displayTotal').innerText = formatarMoeda(totalGeral);
             document.getElementById('displayFixa').innerText = formatarMoeda(totalFixa);
             document.getElementById('displayVariavel').innerText = formatarMoeda(totalVariavel);
 
-            // Atualiza Gráfico
             const ctx = document.getElementById('graficoAlocacao').getContext('2d');
-            
             if(chartInstance) chartInstance.destroy();
 
-            // Se não tiver nada, mostra gráfico vazio cinza
             const dataValues = totalGeral === 0 ? [1] : [totalFixa, totalVariavel];
-            const bgColors = totalGeral === 0 ? ['#e9ecef'] : ['#0dcaf0', '#ffc107']; // Info (Azul) e Warning (Amarelo)
+            const bgColors = totalGeral === 0 ? ['#e9ecef'] : ['#0dcaf0', '#ffc107']; 
             const labels = totalGeral === 0 ? ['Sem dados'] : ['Renda Fixa', 'Renda Variável'];
 
             chartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: labels,
-                    datasets: [{
-                        data: dataValues,
-                        backgroundColor: bgColors,
-                        borderWidth: 0
-                    }]
+                    datasets: [{ data: dataValues, backgroundColor: bgColors, borderWidth: 0 }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right' }
-                    }
+                    plugins: { legend: { position: 'right' } }
                 }
             });
         }
-
-        // --- CRUD ---
 
         function prepararNovo() {
             document.getElementById('editIndex').value = "-1";
             document.getElementById('invNome').value = "";
             document.getElementById('invValor').value = "";
-            document.getElementById('invAporte').value = "";
-            document.getElementById('invRentabilidade').value = "";
-            document.getElementById('invObjetivo').value = "";
             document.getElementById('invCategoria').value = "Renda Fixa";
             document.getElementById('modalTitulo').innerText = "Novo Aporte";
         }
 
-        function salvarInvestimentoMemoria() {
+        function salvarNovoInvestimento() {
             const indexVal = document.getElementById('editIndex').value;
             const index = indexVal === "" ? -1 : parseInt(indexVal);
 
-            const nome = document.getElementById('invNome').value;
-    const valor = parseFloat(document.getElementById('invValor').value);
+            // --- TRAVA DE LIMITE (Só aplica se for NOVO aporte) ---
+            if (index === -1) {
+                // Passamos a quantidade atual para validar
+                if (!verificarLimites('investimentos', listaAtivos.length)) {
+                    modalInv.hide();
+                    return;
+                }
+            }
+            // -----------------------------------------------------
 
-    if (!nome || isNaN(valor)) {
-        exibirMensagem("Nome e Valor Atual são obrigatórios!", "aviso");
-        return;
-    }
+            const nome = document.getElementById('invNome').value;
+            const valor = parseFloat(document.getElementById('invValor').value);
+
+            if (!nome || isNaN(valor)) {
+                exibirMensagem("Nome e Valor Atual são obrigatórios!", "aviso");
+                return;
+            }
 
             const novoAtivo = {
                 nome: nome,
@@ -330,48 +313,37 @@ document.getElementById('alertaNaoSalvo').classList.add('hidden');
             document.getElementById('invRentabilidade').value = ativo.rentabilidade;
             document.getElementById('invObjetivo').value = ativo.objetivo;
             document.getElementById('invCategoria').value = ativo.categoria;
-            
             document.getElementById('modalTitulo').innerText = "Editar Ativo";
             modalInv.show();
         }
 
-       function excluirInvestimento(index) {
-    exibirConfirmacao("Tem certeza que deseja remover este investimento da carteira?", () => {
-        listaAtivos.splice(index, 1);
-        marcarComoSujo();
-        renderizarTela();
-    });
-}
-
-        // --- SISTEMA ---
+        function excluirInvestimento(index) {
+            exibirConfirmacao("Remover este investimento?", () => {
+                listaAtivos.splice(index, 1);
+                marcarComoSujo();
+                renderizarTela();
+            });
+        }
 
         function marcarComoSujo() {
             isDirty = true;
             document.getElementById('alertaNaoSalvo').classList.remove('hidden');
         }
 
-        // Adicione o parâmetro (silencioso = false)
-function salvarAlteracoes(silencioso = false) {
-    const db = getDB();
-    const idx = db.findIndex(c => c.id === clientId);
-    
-    if (idx !== -1) {
-        // AQUI ESTAVA O SEU ERRO: Você não estava atribuindo a lista ao cliente
-        db[idx].investimentos = listaAtivos;
-        
-        saveDB(db);
-        isDirty = false;
-document.getElementById('alertaNaoSalvo').classList.add('hidden');
+        function salvarAlteracoes(silencioso = false) {
+            const db = getDB();
+            const idx = db.findIndex(c => c.id === clientId);
+            
+            if (idx !== -1) {
+                db[idx].investimentos = listaAtivos;
+                saveDB(db);
+                isDirty = false;
+                document.getElementById('alertaNaoSalvo').classList.add('hidden');
+                if (!silencioso) exibirMensagem("Dados salvos com sucesso!", "sucesso");
+            }
+        }
 
-if (!silencioso) {
-    exibirMensagem("Dados salvos com sucesso!", "sucesso");
-}
-    }
-}
-
-        function voltarIndex() {
-    navegarPara('clientes.html');
-}
+        function voltarIndex() { navegarPara('clientes.html'); }
 
         init();
     </script>
