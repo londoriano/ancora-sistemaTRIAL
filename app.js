@@ -53,9 +53,29 @@ async function verificarLicenca() {
 
 // --- SEGURANÇA E SESSÃO ---
 function verificarAutenticacao() {
-    const isIndex = window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/');
+    const path = window.location.pathname;
+    const page = path.split("/").pop();
+    const isIndex = page === 'index.html' || page === '' || page === '/';
     const logado = sessionStorage.getItem(SESSAO_KEY);
-    if (!logado && !isIndex) window.location.href = 'index.html';
+    
+    // 1. Se não está logado, chuta para o index
+    if (!logado && !isIndex) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    // 2. LISTA NEGRA: Páginas que NÃO podem ser acessadas no Trial
+    // Adicione aqui todos os arquivos HTML que devem ser bloqueados
+    const PAGINAS_PROIBIDAS = [
+        'reserva_emergencia.html', 
+        'protecao_patrimonial.html', 
+        'aposentadoria.html'
+    ];
+
+    if (PAGINAS_PROIBIDAS.includes(page)) {
+        alert("Acesso Negado: Este módulo é exclusivo da versão PRO."); // Alerta simples pois o DOM pode não estar pronto para modal
+        window.location.href = 'clientes.html'; // Redireciona para área segura
+    }
 }
 
 let inatividadeTime;
